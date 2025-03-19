@@ -15,6 +15,14 @@ import g06.ecnu.heartbridge.utils.JwtUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <p>
+ *  Service
+ * </p>
+ *
+ * @author Tennsai Minamoto
+ * @since 2025/3/12
+ */
 @Service
 public class AuthService {
     @Resource
@@ -22,7 +30,7 @@ public class AuthService {
     @Resource
     private AdminMapper adminMapper;
 
-    public ResponseEntity register(String username, String password, String phone, String email){
+    public ResponseEntity<Object> register(String username, String password, String phone, String email){
         if (!PatternValidator.validatePattern(username).equals("USERNAME")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"用户名不合法\"}");
         }
@@ -46,7 +54,7 @@ public class AuthService {
         }
     }
 
-    public ResponseEntity login(String loginParam, String password){
+    public ResponseEntity<Object> login(String loginParam, String password){
         QueryWrapper<Users> queryWrapper = new QueryWrapper<>();
 
         switch (PatternValidator.validatePattern(loginParam)){
@@ -62,9 +70,9 @@ public class AuthService {
             case "INVALID":
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"请输入有效的邮箱或用户名或电话号\"}");
         }
-        Users user = usersMapper.selectOne(queryWrapper);
-        if (user != null && user.getPassword().equals(password)) {
-            String token = JwtUtil.generateToken(user.getUsername(), (Integer) user.getType());
+        Users users = usersMapper.selectOne(queryWrapper);
+        if (users != null && users.getPassword().equals(password)) {
+            String token = JwtUtil.generateToken(users.getUserName(), (Integer) users.getType());
             Map<String, String> response = new HashMap<>();
             response.put("token", token);
             return ResponseEntity.ok(response);
@@ -73,7 +81,15 @@ public class AuthService {
         }
     }
 
-    public ResponseEntity loginAdmin(String id, String password){
-        return ResponseEntity.ok(null);
+    public ResponseEntity<Object> loginAdmin(String id, String password){
+        Admin admin = adminMapper.selectById(id);
+        if (admin != null && admin.getPassword().equals(password)) {
+            String token = JwtUtil.generateToken(String.valueOf(admin.getId()), 2);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"用户名或密码错误\"}");
+        }
     }
 }
