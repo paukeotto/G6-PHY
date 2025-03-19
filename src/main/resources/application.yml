@@ -1,3 +1,5 @@
 spring:
   application:
-    name:heartbridge
+    name: heartbridge
+  profiles:
+    active: dev
