@@ -44,7 +44,7 @@ public class AuthController {
     }
 
     @PostMapping("/admin/login")
-    public ResponseEntity loginAdmin(@RequestParam String username, @RequestParam String password){
-        return authService.loginAdmin(username, password);
+    public ResponseEntity loginAdmin(@RequestParam String id, @RequestParam String password){
+        return authService.loginAdmin(id, password);
     }
 }
