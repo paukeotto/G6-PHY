@@ -35,14 +35,15 @@ public class ScheduleService {
     public ResponseEntity<Object> getSchedule(int clientId) {
         QueryWrapper<Schedule> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("client_id", clientId);
-        if (scheduleMapper.selectCount(queryWrapper) > 0) {
-            List<Schedule> schedules = scheduleMapper.selectList(queryWrapper);
+        List<Schedule> schedules = scheduleMapper.selectList(queryWrapper);
+        if (!schedules.isEmpty()) {
             Map<String, List<Schedule>> response = new HashMap<>();
             response.put("data", schedules);
             return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"未找到预约信息\"}");
         }
+
     }
 
     public ResponseEntity<Object> saveSchedule(int consultantId, int clientId, String date, String time) {

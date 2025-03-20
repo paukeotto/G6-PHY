@@ -30,27 +30,33 @@ public class AuthService {
     @Resource
     private AdminMapper adminMapper;
 
-    public ResponseEntity<Object> register(String username, String password, String phone, String email){
-        if (!PatternValidator.validatePattern(username).equals("USERNAME")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"用户名不合法\"}");
-        }
-        if (!PatternValidator.validatePattern(phone).equals("PHONE")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"电话不合法\"}");
-        }
-        if (!PatternValidator.validatePattern(username).equals("EMAIL")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"邮箱不合法\"}");
-        }
-        if (usersMapper.ifUserExists(username, phone, email)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"用户名或电话或邮箱已存在\"}");
+    public ResponseEntity<Object> register(String username, String password, String phone, String email, String confirmPassword, int agree){
+        if (agree == 0){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"请阅读并同意相关协议\"}");
+        } else if (!password.equals(confirmPassword)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"两次密码不一致\"}");
         } else {
-            int userType = 0;
-            Users user = new Users(username, password, phone, email, userType);
-            int result = usersMapper.insert(user);
-            String token = JwtUtil.generateToken(username, userType);
-            Map<String, String> response = new HashMap<>();
-            response.put("token", token);
+            if (!PatternValidator.validatePattern(username).equals("USERNAME")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"用户名不合法\"}");
+            }
+            if (!PatternValidator.validatePattern(phone).equals("PHONE")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"电话不合法\"}");
+            }
+            if (!PatternValidator.validatePattern(username).equals("EMAIL")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"邮箱不合法\"}");
+            }
+            if (usersMapper.ifUserExists(username, phone, email)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"用户名或电话或邮箱已存在\"}");
+            } else {
+                int userType = 0;
+                Users user = new Users(username, password, phone, email, userType);
+                int result = usersMapper.insert(user);
+                String token = JwtUtil.generateToken(username, userType);
+                Map<String, String> response = new HashMap<>();
+                response.put("token", token);
 
-            return result > 0 ? ResponseEntity.ok(response) : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"数据库错误，请重试\"}");
+                return result > 0 ? ResponseEntity.ok(response) : ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"数据库错误，请重试\"}");
+            }
         }
     }
 

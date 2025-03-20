@@ -25,7 +25,4 @@ public interface UsersMapper extends BaseMapper<Users> {
                 .or().eq("email", email);
         return selectCount(wrapper) > 0;
     }
-
-    @Select("SELECT * FROM users ")
-    List<String> getAvailableTimes();
 }

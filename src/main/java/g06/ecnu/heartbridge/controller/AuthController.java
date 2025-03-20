@@ -29,13 +29,7 @@ public class AuthController {
 
     @PostMapping("/user/register")
     public ResponseEntity<Object> register(@RequestParam String username,@RequestParam String phone, @RequestParam(required = false) String email, @RequestParam String password, @RequestParam String confirmPassword, @RequestParam int agree){
-        if (agree == 0){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"请阅读并同意相关协议\"}");
-        } else if (!password.equals(confirmPassword)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\":\"两次密码不一致\"}");
-        } else {
-            return authService.register(username, password, phone, email);
-        }
+        return authService.register(username, password, phone, email, confirmPassword, agree);
     }
 
     @PostMapping("/user/login")
